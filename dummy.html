@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Bookmarks App</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <h1>Bookmarks App</h1>
+
+    <!-- Add Bookmark Form -->
+    <h2>Add Bookmark</h2>
+    <form id="addBookmarkForm">
+        <label for="bookmarkName">Name:</label>
+        <input type="text" id="bookmarkName" name="bookmarkName">
+        <label for="bookmarkUrl">URL:</label>
+        <input type="text" id="bookmarkUrl" name="bookmarkUrl">
+        <button type="submit">Add Bookmark</button>
+    </form>
+
+    <!-- Bookmarks Table -->
+    <h2>Bookmarks List</h2>
+    <table id="bookmarksTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>URL</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <!-- Edit Bookmark Form -->
+    <h2>Edit Bookmark</h2>
+    <form id="editBookmarkForm" style="display:none;">
+        <label for="editBookmarkName">Name:</label>
+        <input type="text" id="editBookmarkName" name="bookmarkName">
+        <label for="editBookmarkUrl">URL:</label>
+        <input type="text" id="editBookmarkUrl" name="bookmarkUrl">
+        <input type="hidden" id="editBookmarkId" name="bookmarkId">
+        <button type="submit">Save Bookmark</button>
+    </form>
+
+    <!-- Search bookmarks -->
+    <label for="searchBox">Search bookmarks:</label>
+<input type="text" id="searchBox" placeholder="Enter a name or URL">
+
+
+    <script>
+        $(document).ready(function () {
+            // Display all bookmarks on page load
+            displayBookmarks();
+
+            // Submit add bookmark form
+            $('#addBookmarkForm').submit(function (event) {
+                event.preventDefault();
+                var bookmarkName = $('#bookmarkName').val();
+                var bookmarkUrl = $('#bookmarkUrl').val();
+                $.ajax({
+                    type: 'POST',
+                    url: '/api/bookmarks',
+                    data: { name: bookmarkName, url: bookmarkUrl },
+                    success: function (data) {
+                        console.log('Bookmark added: ', data);
+                        displayBookmarks();
+                    },
+                    error: function (err) {
+                        console.error('Error adding bookmark: ', err);
+                    }
+                });
+            });
+
+            // Delete bookmark
+            $('#bookmarksTable').on('click', '.deleteButton', function (event) {
+                event.preventDefault();
+                var bookmarkName = $(this).data('name');
+                $.ajax({
+                    type: 'DELETE',
+                    url: '/api/bookmarks/' + bookmarkName,
+                    success: function (data) {
+                        console.log('Bookmark deleted: ', data);
+                        displayBookmarks();
+                    },
+                    error: function (err) {
+                        console.error('Error deleting bookmark: ', err);
+                    }
+                });
+            });
+
+            // Display bookmarks in table
+            function displayBookmarks() {
+                $.ajax({
+                    type: 'GET',
+                    url: '/api/bookmarks',
+                    success: function (bookmarks) {
+                        console.log('Bookmarks retrieved: ', bookmarks);
+                        var tableRows = '';
+                        bookmarks.forEach(function (bookmark) {
+                            tableRows += '<tr>';
+                            tableRows += '<td>' + bookmark.name + '</td>';
+                            tableRows += '<td><a href="' + bookmark.url + '" target="_blank">' + bookmark.url + '</a></td>';
+                            tableRows += '<td>';
+                            tableRows += '<button class="editButton" data-id="' + bookmark.id + '" data-name="' + bookmark.name + '" data-url="' + bookmark.url + '">Edit</button> ';
+                            tableRows += '<button class="deleteButton" data-name="' + bookmark.name + '">Delete</button>';
+                            tableRows += '</td>';
+                            tableRows += '</tr>';
+                        });
+                        $('#bookmarksTable tbody').html(tableRows);
+                    },
+                    error: function (err) {
+                        console.error('Error retrieving bookmarks: ', err);
+                    }
+                });
+            }
+
+
+            // Show edit bookmark form
+            $('#bookmarksTable').on('click', '.editButton', function (event) {
+                event.preventDefault();
+                var bookmarkId = $(this).data('id');
+                var bookmarkName = $(this).data('name');
+                var bookmarkUrl = $(this).data('url');
+                $('#editBookmarkId').val(bookmarkId);
+                $('#editBookmarkName').val(bookmarkName);
+                $('#editBookmarkUrl').val(bookmarkUrl);
+                $('#editBookmarkForm').show();
+            });
+
+            // Submit edit bookmark form
+            $('#editBookmarkForm').submit(function (event) {
+                event.preventDefault();
+                var bookmarkId = $('#editBookmarkId').val();
+                var bookmarkName = $('#editBookmarkName').val();
+                var bookmarkUrl = $('#editBookmarkUrl').val();
+                $.ajax({
+                    type: 'PUT',
+                    url: '/api/bookmarks/' + bookmarkName,
+                    data: { name: bookmarkName, url: bookmarkUrl },
+                    success: function (data) {
+                        console.log('Bookmark updated: ', data);
+                        displayBookmarks();
+                        $('#editBookmarkForm').hide();
+                    },
+                    error: function (err) {
+                        console.error('Error updating bookmark: ', err);
+                    }
+                });
+            });
+            
+
+        });
+    </script>
+</body>
+
+</html>
