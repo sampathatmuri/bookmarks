@@ -1,16 +1,20 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
+const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
+app.use(express.static(__dirname + '/public'));
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+
 // Read bookmarks from file
 function readBookmarks() {
-    const data = fs.readFileSync('bookmarks.json');
+    const data = fs.readFileSync('./bookmarks.json');
     const bookmarks = JSON.parse(data);
     return bookmarks;
 }
@@ -19,7 +23,7 @@ function readBookmarks() {
 // Write bookmarks to file
 function writeBookmarks(bookmarks) {
     const data = JSON.stringify(bookmarks, null, 2);
-    fs.writeFileSync('bookmarks.json', data);
+    fs.writeFileSync('./bookmarks.json', data);
 }
 
 // Get all bookmarks
@@ -91,9 +95,9 @@ app.get('/api/bookmark/single/search', (req, res) => {
 });
 
 // Serve HTML front-end
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
-});
+    app.get('/', (req, res) => {
+        res.sendFile(__dirname + '/index.html');
+    });
 
 // Start the server
 app.listen(port, () => {

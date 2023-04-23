@@ -1,157 +1,328 @@
 <!DOCTYPE html>
 <html>
-
-<head>
+  <head>
     <title>Bookmarks App</title>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+    />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-</head>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  </head>
 
-<body>
-    <h1>Bookmarks App</h1>
+  <body style="font-family: 'Times New Roman', Times, serif">
+    <nav
+      class="navbar navbar-expand-lg navbar-light"
+      style="background-color: #27f3f0"
+    >
+      <a class="navbar-brand" href="#">Bookmarks App</a>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <form
+          class="form-inline my-2 my-lg-0"
+          style="position: absolute; right: 50px; top: 7px"
+        >
+          <input
+            class="form-control mr-sm-2"
+            type="text"
+            id="searchBox"
+            placeholder="Search Bookmark"
+            aria-label="Search"
+          />
+          <span class="glyphicon glyphicon-search"></span>
+        </form>
+      </div>
+    </nav>
 
     <!-- Add Bookmark Form -->
-    <h2>Add Bookmark</h2>
-    <form id="addBookmarkForm">
-        <label for="bookmarkName">Name:</label>
-        <input type="text" id="bookmarkName" name="bookmarkName">
-        <label for="bookmarkUrl">URL:</label>
-        <input type="text" id="bookmarkUrl" name="bookmarkUrl">
-        <button type="submit">Add Bookmark</button>
-    </form>
+    <div
+      class="card text-center"
+      style="
+        box-shadow: 2px 2px 2px 2px #dff327;
+        margin-top: 2%;
+        margin-left: 35%;
+        margin-right: 35%;
+        margin-bottom: 5%;
+        padding-top: 2px;
+        padding-bottom: 8px;
+      "
+    >
+      <div class="card-header">
+        <h3 style="color: #273ae6">Add Bookmark</h3>
+      </div>
+      <form id="addBookmarkForm">
+        <div class="row">
+          <div class="col" style="margin-bottom: 5px">
+            <input
+              type="text"
+              id="bookmarkName"
+              name="bookmarkName"
+              placeholder="Name"
+            />
+          </div>
+          <div class="col" style="margin-bottom: 5px">
+            <input
+              type="text"
+              id="bookmarkUrl"
+              name="bookmarkUrl"
+              placeholder="URL"
+            />
+          </div>
+          <button type="submit" class="btn btn-primary">Add Bookmark</button>
+        </div>
+      </form>
+    </div>
 
     <!-- Bookmarks Table -->
-    <h2>Bookmarks List</h2>
-    <table id="bookmarksTable">
-        <thead>
+    <div class="card">
+      <div class="card-header text-center">
+        <h3 style="color: #273ae6">Bookmarks List</h3>
+      </div>
+      <div class="table-responsive-sm">
+        <table class="table table-hover table-dark" id="bookmarksTable">
+          <thead>
             <tr>
-                <th>Name</th>
-                <th>URL</th>
-                <th>Action</th>
+              <th scope="col">Name</th>
+              <th scope="col">Action</th>
             </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
 
     <!-- Edit Bookmark Form -->
-    <h2>Edit Bookmark</h2>
-    <form id="editBookmarkForm" style="display:none;">
-        <label for="editBookmarkName">Name:</label>
-        <input type="text" id="editBookmarkName" name="bookmarkName">
-        <label for="editBookmarkUrl">URL:</label>
-        <input type="text" id="editBookmarkUrl" name="bookmarkUrl">
-        <input type="hidden" id="editBookmarkId" name="bookmarkId">
-        <button type="submit">Save Bookmark</button>
-    </form>
-
-    <!-- Search bookmarks -->
-    <label for="searchBox">Search bookmarks:</label>
-<input type="text" id="searchBox" placeholder="Enter a name or URL">
-
+    <div class="card text-center">
+      <form
+        id="editBookmarkForm"
+        style="
+          display: none;
+          box-shadow: 2px 2px 2px 2px #dff327;
+          margin-top: 2%;
+          margin-left: 35%;
+          margin-right: 35%;
+          margin-bottom: 5%;
+          padding-top: 2px;
+          padding-bottom: 8px;
+        "
+      >
+        <div class="card-header">
+          <h3 style="color: #273ae6">Edit Bookmark</h3>
+        </div>
+        <div class="row">
+          <div class="col" style="margin-bottom: 5px">
+            <input
+              type="text"
+              id="editBookmarkName"
+              name="bookmarkName"
+              placeholder="Name"
+            />
+          </div>
+          <div class="col" style="margin-bottom: 5px">
+            <input
+              type="text"
+              id="editBookmarkUrl"
+              name="bookmarkUrl"
+              placeholder="URL"
+            />
+            <input type="hidden" id="editBookmarkId" name="bookmarkId" />
+          </div>
+          <button type="submit" class="btn btn-primary">Save Bookmark</button>
+        </div>
+      </form>
+    </div>
 
     <script>
-        $(document).ready(function () {
-            // Display all bookmarks on page load
-            displayBookmarks();
+      $(document).ready(function () {
+        // Display all bookmarks on page load
+        // displayBookmarks();
 
-            // Submit add bookmark form
-            $('#addBookmarkForm').submit(function (event) {
-                event.preventDefault();
-                var bookmarkName = $('#bookmarkName').val();
-                var bookmarkUrl = $('#bookmarkUrl').val();
-                $.ajax({
-                    type: 'POST',
-                    url: '/api/bookmarks',
-                    data: { name: bookmarkName, url: bookmarkUrl },
-                    success: function (data) {
-                        console.log('Bookmark added: ', data);
-                        displayBookmarks();
-                    },
-                    error: function (err) {
-                        console.error('Error adding bookmark: ', err);
-                    }
-                });
-            });
-
-            // Delete bookmark
-            $('#bookmarksTable').on('click', '.deleteButton', function (event) {
-                event.preventDefault();
-                var bookmarkName = $(this).data('name');
-                $.ajax({
-                    type: 'DELETE',
-                    url: '/api/bookmarks/' + bookmarkName,
-                    success: function (data) {
-                        console.log('Bookmark deleted: ', data);
-                        displayBookmarks();
-                    },
-                    error: function (err) {
-                        console.error('Error deleting bookmark: ', err);
-                    }
-                });
-            });
-
-            // Display bookmarks in table
-            function displayBookmarks() {
-                $.ajax({
-                    type: 'GET',
-                    url: '/api/bookmarks',
-                    success: function (bookmarks) {
-                        console.log('Bookmarks retrieved: ', bookmarks);
-                        var tableRows = '';
-                        bookmarks.forEach(function (bookmark) {
-                            tableRows += '<tr>';
-                            tableRows += '<td>' + bookmark.name + '</td>';
-                            tableRows += '<td><a href="' + bookmark.url + '" target="_blank">' + bookmark.url + '</a></td>';
-                            tableRows += '<td>';
-                            tableRows += '<button class="editButton" data-id="' + bookmark.id + '" data-name="' + bookmark.name + '" data-url="' + bookmark.url + '">Edit</button> ';
-                            tableRows += '<button class="deleteButton" data-name="' + bookmark.name + '">Delete</button>';
-                            tableRows += '</td>';
-                            tableRows += '</tr>';
-                        });
-                        $('#bookmarksTable tbody').html(tableRows);
-                    },
-                    error: function (err) {
-                        console.error('Error retrieving bookmarks: ', err);
-                    }
-                });
-            }
-
-
-            // Show edit bookmark form
-            $('#bookmarksTable').on('click', '.editButton', function (event) {
-                event.preventDefault();
-                var bookmarkId = $(this).data('id');
-                var bookmarkName = $(this).data('name');
-                var bookmarkUrl = $(this).data('url');
-                $('#editBookmarkId').val(bookmarkId);
-                $('#editBookmarkName').val(bookmarkName);
-                $('#editBookmarkUrl').val(bookmarkUrl);
-                $('#editBookmarkForm').show();
-            });
-
-            // Submit edit bookmark form
-            $('#editBookmarkForm').submit(function (event) {
-                event.preventDefault();
-                var bookmarkId = $('#editBookmarkId').val();
-                var bookmarkName = $('#editBookmarkName').val();
-                var bookmarkUrl = $('#editBookmarkUrl').val();
-                $.ajax({
-                    type: 'PUT',
-                    url: '/api/bookmarks/' + bookmarkName,
-                    data: { name: bookmarkName, url: bookmarkUrl },
-                    success: function (data) {
-                        console.log('Bookmark updated: ', data);
-                        displayBookmarks();
-                        $('#editBookmarkForm').hide();
-                    },
-                    error: function (err) {
-                        console.error('Error updating bookmark: ', err);
-                    }
-                });
-            });
-            
-
+        // Submit add bookmark form
+        $("#addBookmarkForm").submit(function (event) {
+          event.preventDefault();
+          var bookmarkName = $("#bookmarkName").val();
+          var bookmarkUrl = $("#bookmarkUrl").val();
+          $.ajax({
+            type: "POST",
+            url: "/api/bookmarks",
+            data: { name: bookmarkName, url: bookmarkUrl },
+            success: function (data) {
+              console.log("Bookmark added: ", data);
+              $("#addBookmarkForm")[0].reset();
+              displayBookmarks();
+            },
+            error: function (err) {
+              console.error("Error adding bookmark: ", err);
+            },
+          });
         });
-    </script>
-</body>
 
+        // Delete bookmark
+        $("#bookmarksTable").on("click", ".deleteButton", function (event) {
+          event.preventDefault();
+          var bookmarkName = $(this).data("name");
+          $.ajax({
+            type: "DELETE",
+            url: "/api/bookmarks/" + bookmarkName,
+            success: function (data) {
+              console.log("Bookmark deleted: ", data);
+              displayBookmarks();
+            },
+            error: function (err) {
+              console.error("Error deleting bookmark: ", err);
+            },
+          });
+        });
+
+        // Display bookmarks in table
+        function displayBookmarks() {
+          $.ajax({
+            type: "GET",
+            url: "/api/bookmarks",
+            success: function (bookmarks) {
+              console.log("Bookmarks retrieved: ", bookmarks);
+              var tableRows = "";
+              bookmarks.forEach(function (bookmark) {
+                tableRows += "<tr>";
+                tableRows += "<td>" + bookmark.name + "</td>";
+                tableRows +=
+                  '<td><a href="' +
+                  bookmark.url +
+                  '" target="_blank">' +
+                  bookmark.url +
+                  "</a></td>";
+                tableRows += "<td>";
+                tableRows +=
+                  '<button class="editButton" data-id="' +
+                  bookmark.id +
+                  '" data-name="' +
+                  bookmark.name +
+                  '" data-url="' +
+                  bookmark.url +
+                  '">Edit</button> ';
+                tableRows +=
+                  '<button class="deleteButton" data-name="' +
+                  bookmark.name +
+                  '">Delete</button>';
+                tableRows += "</td>";
+                tableRows += "</tr>";
+              });
+              $("#bookmarksTable tbody").html(tableRows);
+            },
+            error: function (err) {
+              console.error("Error retrieving bookmarks: ", err);
+            },
+          });
+        }
+
+        // Show edit bookmark form
+        $("#bookmarksTable").on("click", ".editButton", function (event) {
+          event.preventDefault();
+          var bookmarkId = $(this).data("name");
+          var bookmarkName = $(this).data("name");
+          var bookmarkUrl = $(this).data("url");
+          $("#editBookmarkId").val(bookmarkId);
+          $("#editBookmarkName").val(bookmarkName);
+          $("#editBookmarkUrl").val(bookmarkUrl);
+          $("#editBookmarkForm").show();
+        });
+
+        // Submit edit bookmark form
+        $("#editBookmarkForm").submit(function (event) {
+          event.preventDefault();
+          var bookmarkId = $("#editBookmarkId").val();
+          var bookmarkName = $("#editBookmarkName").val();
+          var bookmarkUrl = $("#editBookmarkUrl").val();
+          $.ajax({
+            type: "PUT",
+            url: "/api/bookmarks/" + bookmarkId,
+            data: { name: bookmarkName, url: bookmarkUrl },
+            success: function (data) {
+              console.log("Bookmark updated: ", data);
+              displayBookmarks();
+              $("#editBookmarkForm").hide();
+            },
+            error: function (err) {
+              console.error("Error updating bookmark: ", err);
+            },
+          });
+        });
+        // Client.js
+
+        function filterBookmarks(searchTerm) {
+          $.ajax({
+            type: "GET",
+            url: "/api/bookmark/single/search",
+            data: { term: searchTerm },
+            success: function (filteredBookmarks) {
+              var tableRows = "";
+              filteredBookmarks.forEach(function (bookmark) {
+                tableRows += "<tr>";
+                tableRows +=
+                  '<td><a href="' +
+                  bookmark.url +
+                  '" target="_blank">' +
+                  bookmark.name +
+                  "</a></td>";
+                tableRows += "<td>";
+                tableRows +=
+                  '<button class="editButton" data-id="' +
+                  bookmark.id +
+                  '" data-name="' +
+                  bookmark.name +
+                  '" data-url="' +
+                  bookmark.url +
+                  '">Edit</button> ';
+                tableRows +=
+                  '<button class="deleteButton" data-name="' +
+                  bookmark.name +
+                  '">Delete</button>';
+                tableRows += "</td>";
+                tableRows += "</tr>";
+              });
+              $("#bookmarksTable tbody").html(tableRows);
+            },
+            error: function (err) {
+              console.error("Error filtering bookmarks: ", err);
+            },
+          });
+        }
+
+        $("#searchBox").on("input", function (event) {
+          var searchTerm = event.target.value.trim();
+          filterBookmarks(searchTerm);
+        });
+
+        function displayBookmarkss(filteredBookmarks) {
+          console.log("Bookmarks retrieveds: ", bookmarks);
+          var tableRows = "";
+          bookmarks.forEach(function (bookmark) {
+            tableRows += "<tr>";
+            tableRows += "<td>" + bookmark.name + "</td>";
+            tableRows +=
+              '<td><a href="' +
+              bookmark.url +
+              '" target="_blank">' +
+              bookmark.url +
+              "</a></td>";
+            tableRows += "<td>";
+            tableRows +=
+              '<button class="editButton" data-id="' +
+              bookmark.id +
+              '" data-name="' +
+              bookmark.name +
+              '" data-url="' +
+              bookmark.url +
+              '">Edit</button> ';
+            tableRows +=
+              '<button class="deleteButton" data-name="' +
+              bookmark.name +
+              '">Delete</button>';
+            tableRows += "</td>";
+            tableRows += "</tr>";
+          });
+          $("#bookmarksTable tbody").html(tableRows);
+        }
+      });
+    </script>
+  </body>
 </html>
