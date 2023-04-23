@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bookmarks App</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/4.2.0/mustache.min.js"></script>
+
+</head>
+
+<body>
+  <div class="container text-center">
+
+    <div class="popup">
+      <form>
+        <div class="row">
+          <div class="col">
+            <input type="text" class="form-control" placeholder="Find or create a bookmark..." id="searchBox">
+          </div>
+        </div>
+      </form>
+
+      <div class="popup-content">
+        <table class="table table-hover table-dark" id="bookmarksTable">
+          <thead>
+            <tr>
+              <th scope="col">Bookmarks</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+
+        <button type="button" id="addBookMarkForm" class="button">Create a bookmark</button>
+        <button type="button" class="button">Show all bookmarks</button>
+      </div>
+    </div>
+
+    <!-- Add Bookmark Form -->
+    <div>
+      <form id="addBookmarkForm" class="form-align">
+        <div class="card-header">
+          <h3>Add Bookmark</h3>
+        </div>
+        <div class="row">
+          <div class="col input-margin">
+            <input type="text" id="bookmarkName" name="bookmarkName" placeholder="Name" required />
+          </div>
+          <div class="col input-margin">
+            <input type="text" id="bookmarkUrl" name="bookmarkUrl" placeholder="URL" required />
+          </div>
+          <button type="submit" class="button">Add Bookmark</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+
+  <script>
+    $(document).ready(function () {
+      
+      // Show Add bookmark form
+      $("#addBookMarkForm").on("click", function (event) {
+        event.preventDefault();
+        $("#addBookmarkForm").css("display", "inline-block").show();
+
+      });
+
+      // Submit add bookmark form
+      $("#addBookmarkForm").submit(function (event) {
+        event.preventDefault();
+        var bookmarkName = $("#bookmarkName").val();
+        var bookmarkUrl = $("#bookmarkUrl").val();
+        $.ajax({
+          type: "POST",
+          url: "/api/bookmarks",
+          data: { name: bookmarkName, url: bookmarkUrl },
+          success: function (data) {
+            $("#addBookmarkForm").hide();
+          },
+          error: function (err) {
+            console.error("Error adding bookmark: ", err);
+          },
+        });
+      });
+
+      // filter bookmarks
+
+      function filterBookmarks(searchTerm) {
+        $.ajax({
+          type: "GET",
+          url: "/api/bookmark/single/search",
+          data: { term: searchTerm },
+          success: function (filteredBookmarks) {
+            var tableRows = "";
+            filteredBookmarks.forEach(function (bookmark) {
+              tableRows += "<tr>";
+              tableRows +=
+                '<td><a href="' +
+                bookmark.url +
+                '" target="_blank">' +
+                bookmark.name +
+                "</a></td>";
+              tableRows += "</tr>";
+            });
+            $("#bookmarksTable tbody").html(tableRows);
+          },
+          error: function (err) {
+            console.error("Error filtering bookmarks: ", err);
+          },
+        });
+      }
+
+
+
+      $("#searchBox").on("input", function (event) {
+        var searchTerm = event.target.value.trim();
+        if (searchTerm.length >= 2) {
+          filterBookmarks(searchTerm);
+        }
+        else {
+          $("#bookmarksTable tbody").html("");
+        }
+      });
+
+
+    });
+  </script>
+</body>
+
+</html>
